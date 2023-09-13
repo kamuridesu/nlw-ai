@@ -1,0 +1,25 @@
+# @name get-prompts
+GET http://localhost:3333/prompts
+
+### 
+
+# @name upload
+POST http://localhost:3333/videos
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="file"; filename="example.mp3"
+Content-Type: audio/mpeg
+
+< ./example.mp3
+------WebKitFormBoundary--
+
+###
+
+# @name craete-transcription
+POST http://localhost:3333/videos/c6b2dac7-1129-4217-bc5f-6e5252634459/transcription
+Content-Type: application/json
+
+{
+    "prompt": "clean architecture, ddd"
+}

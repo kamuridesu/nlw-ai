@@ -3,7 +3,7 @@ import { createReadStream } from "node:fs";
 import { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
-import { openai } from "../lib/openai";
+import { localAiEnabled, openai } from "../lib/openai";
 
 export async function createTranscriptionRoute(app: FastifyInstance) {
     app.post("/videos/:videoId/transcription", async (req, res) => {
@@ -29,13 +29,20 @@ export async function createTranscriptionRoute(app: FastifyInstance) {
         console.log("ceateing taenscripti");
         const response = await openai.audio.transcriptions.create({
             file: audioReadStream,
-            model: 'ggml-whisper-base.bin',
+            model: localAiEnabled ? 'ggml-whisper-base.bin' : "whisper-1",
             language: 'pt',
             response_format: 'json',
             temperature: 0,
             prompt,
-        }, {
-            // timeout: 12000
+        });
+
+        await prisma.video.update({
+            where: {
+                id: videoId
+            },
+            data: {
+                transcription: response.text
+            }
         })
 
         return response.text;
